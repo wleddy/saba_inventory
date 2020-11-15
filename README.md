@@ -1,5 +1,3 @@
-# Inventory Test
+# SABA Inventory
 
-A test of my inventory Shotglass2 plugin
-
-See the [shotglass docs](/docs/shotglass2/README.md) for more info.
+The SABA interface to the inventory + shotglass2 inventory system
