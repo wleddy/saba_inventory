@@ -1,0 +1,12 @@
+{% set home_page = url_for('item.display') %}
+<div id="sg-identity" class="w3-container w3-secondary-color w3-main menu_space" style="padding:2%;">
+    <div class="w3-quarter w3-hide-small" style="max-width:120pt;">
+        <a id="header_home" href="{{ home_page }}">
+              <img style="width:100%;max-width:120pt;max-height:80pt;object-fit: scale-down;" id="headerlogo" src="{{ url_for('static', filename='images/header-logo.jpg') }}" alt="Header image for {{ site_config.SITE_NAME }}" />
+        </a>
+    </div>
+    <div class="w3-container w3-threequarter">
+        <h1 class="w3-xxxlarge" style="line-height:.9;margin-right:24pt;"><a style="text-decoration:none;" href="{{ home_page }}">{{ site_config.SITE_NAME | default("This Site Has no SITE_NAME!")}}</a></h1>
+    </div>
+</div>
+
