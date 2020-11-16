@@ -27,10 +27,10 @@ def inject_site_config():
 
 
 # work around some web servers that mess up root path
-from werkzeug.contrib.fixers import CGIRootFix
-if app.config['CGI_ROOT_FIX_APPLY'] == True:
-    fixPath = app.config.get("CGI_ROOT_FIX_PATH","/")
-    app.wsgi_app = CGIRootFix(app.wsgi_app, app_root=fixPath)
+# from werkzeug.contrib.fixers import CGIRootFix
+# if app.config['CGI_ROOT_FIX_APPLY'] == True:
+#     fixPath = app.config.get("CGI_ROOT_FIX_PATH","/")
+#     app.wsgi_app = CGIRootFix(app.wsgi_app, app_root=fixPath)
 
 register_jinja_filters(app)
 inventory.register_jinja_filters(app)
