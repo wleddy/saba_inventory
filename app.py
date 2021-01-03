@@ -1,3 +1,19 @@
+""" This is the start of Flask Application
+
+This module handles initialization, setup and common request routing
+for the Flask application
+
+Args:
+    None
+
+Returns:
+    None
+
+Raises:
+    None
+"""
+import os
+
 from flask import Flask, g, session, request, redirect, flash, abort, url_for
 from flask_mail import Mail
 from shotglass2 import shotglass
@@ -18,6 +34,7 @@ app.config.from_pyfile('site_settings.py', silent=True)
 @app.before_first_request
 def start_logging():
     shotglass.start_logging(app)
+    shotglass.start_backup_thread(os.path.normpath(os.path.join(app.root_path,shotglass.get_site_config()['DATABASE_PATH'])))
 
 
 @app.context_processor
