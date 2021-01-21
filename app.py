@@ -14,7 +14,7 @@ Raises:
 """
 import os
 
-from flask import Flask, g, session, request, redirect, flash, abort, url_for
+from flask import g, session, request, redirect, flash, abort, url_for
 from flask_mail import Mail
 from shotglass2 import shotglass
 from shotglass2.takeabeltof.database import Database
@@ -26,10 +26,16 @@ from inventory import inventory
 from inventory.views import item
 
 # Create app
-# setting static_folder to None allows me to handle loading myself
-app = Flask(__name__, instance_relative_config=True,
-        static_folder=None)
-app.config.from_pyfile('site_settings.py', silent=True)
+import logging 
+try:
+    app = shotglass.create_app(
+            __name__,
+            instance_path='../data_store/instance',
+            config_filename='site_settings.py',
+            static_folder=None,
+            )
+except:
+    logging.exception('')
 
 @app.before_first_request
 def start_logging():
@@ -171,6 +177,6 @@ if __name__ == '__main__':
         initalize_all_tables()
         
     #app.run(host='localhost', port=8000)
-    app.run()
+    app.run(host='inventory.willie.local')
     
     
