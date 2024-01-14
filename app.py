@@ -147,8 +147,8 @@ def initalize_base_tables(db=None):
     shotglass.initalize_user_tables(db)
 
     # ### setup any other tables you need here....
-    # import starter_module.models
-    # starter_module.models.init_db(db)
+    import inventory.models
+    inventory.models.init_tables(db)
     
 def register_blueprints():
     """Register all your blueprints here and initialize 
