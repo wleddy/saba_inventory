@@ -148,7 +148,7 @@ def initalize_base_tables(db=None):
 
     # ### setup any other tables you need here....
     import inventory.models
-    inventory.models.init_tables(db)
+    inventory.models.init_db(db)
     
 def register_blueprints():
     """Register all your blueprints here and initialize 
