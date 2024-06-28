@@ -10,35 +10,76 @@ from shotglass2.users.models import User
 from shotglass2.users.views import user
 from shotglass2.users.views.login import setUserStatus
 
+import inventory.models
 from inventory import inventory
 from inventory.views import item
 
 # Create app
-import logging 
-
 app = shotglass.create_app(
         __name__,
         instance_path='../data_store/instance',
         config_filename='site_settings.py',
         static_folder=None,
         )
-        
+
+#Register the home page
+app.add_url_rule('/','display',item.display)
+
+
+# Update the next 3 methods to run your app
+def create_menus():
+    # g.menu_items should be a list of dicts
+    #  with keys of 'title' & 'url' used to construct
+    #  the non-table based items in the main menu
+    g.menu_items = [
+        {'title':'Inventory Items','url':url_for('item.display')},
+        {'title':'Stock Report','url':url_for('item.stock_report')},
+        ]
+    g.admin = Admin(g.db) # This is where user access rules are stored
+    g.admin.register(User,
+            url_for('tools.view_log'),
+            display_name='View Log',
+            top_level = True,
+            minimum_rank_required=500,
+        )
+    user.create_menus() # g.admin now holds access rules Users, Prefs and Roles
+
+    inventory.create_menus()
+
+def initalize_tables():
+    """Place code here as needed to initialze all the tables for this site"""
+    if 'db' not in g:
+        get_db() #g.db is now set
+    
+    # shotglass.initalize_user_tables(db)
+    user.initalize_tables(g.db)
+
+    # ### setup any other tables you need here....
+    inventory.initalize_tables(g.db)
+    
+def register_blueprints():
+    """Register all your blueprints here and initialize 
+    any data tables they need.
+    """
+
+     ## Setup the routes for users
+    user.register_blueprints(app)
+
+    # # add app specific modules...
+    # Setup inventory
+    inventory.register_blueprints(app)
+    app.register_blueprint(tools.mod)
+
+
 def start_app():
     shotglass.start_logging(app)
-    initalize_base_tables()
-    ## Setup the routes for users
-    # shotglass.register_users(app)
-
-    # # setup www.routes...
-    # shotglass.register_www(app)
-
-    # app.register_blueprint(tools.mod)
-    shotglass.start_logging(app)
-    initalize_base_tables()
+    initalize_tables()
     register_jinja_filters(app)
-
+    start_backup_thread()
     register_blueprints() # Register all the other bluepints for the app
 
+
+def start_backup_thread():
     # use os.path.normpath to resolve true path to data file when using '../' shorthand
     shotglass.start_backup_thread(
         os.path.normpath(
@@ -70,7 +111,6 @@ def get_db(filespec=None):
     # test the path, if not found, try to create it
     if shotglass.make_db_path(filespec):
         g.db = Database(filespec).connect()
-        initalize_base_tables(g.db)
     
         return g.db
     else:
@@ -142,28 +182,6 @@ def _before():
 
     create_menus()
         
- 
-
-def create_menus():
-    # g.menu_items should be a list of dicts
-    #  with keys of 'title' & 'url' used to construct
-    #  the non-table based items in the main menu
-    g.menu_items = [
-        {'title':'Home','url':url_for('item.display')},
-        {'title':'Inventory Items','url':url_for('item.display')},
-        {'title':'Stock Report','url':url_for('item.stock_report')},
-        ]
-    g.admin = Admin(g.db) # This is where user access rules are stored
-    g.admin.register(User,
-            url_for('tools.view_log'),
-            display_name='View Log',
-            top_level = True,
-            minimum_rank_required=500,
-        )
-    user.create_menus() # g.admin now holds access rules Users, Prefs and Roles
-
-    inventory.register_admin()
-        
 
 @app.teardown_request
 def _teardown(exception):
@@ -180,39 +198,8 @@ def server_error(error):
     return shotglass.server_error(error)
 
 
-def initalize_base_tables(db=None):
-    """Place code here as needed to initialze all the tables for this site"""
-    if not db:
-        db = get_db()
-    
-    # shotglass.initalize_user_tables(db)
-    user.initalize_tables(g.db)
-
-    # ### setup any other tables you need here....
-    import inventory.models
-    inventory.models.init_db(db)
-    
-def register_blueprints():
-    """Register all your blueprints here and initialize 
-    any data tables they need.
-    """
-
-     ## Setup the routes for users
-    user.register_blueprints(app)
-    # # add app specific modules...
-    # Setup inventory
-    inventory.register_blueprints(app)
-    app.register_blueprint(tools.mod)
-
-
 #Register the static route
 app.add_url_rule('/static/<path:filename>','static',shotglass.static)
-
-#Register the home page
-app.add_url_rule('/','display',item.display)
-
-# ## Setup the routes for users
-# shotglass.register_users(app)
 
 with app.app_context():
     start_app()
